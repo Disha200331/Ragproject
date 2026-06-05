@@ -4,7 +4,6 @@ import sys
 from pathlib import Path
 from dotenv import load_dotenv
 import requests  # For checking Ollama connectivity
-import asyncio  # For async operations
 
 # Load environment variables
 load_dotenv()
@@ -97,40 +96,34 @@ except Exception as e:
 # =====================================================================
 # 4. Build Knowledge Graph
 # =====================================================================
-async def build_knowledge_graph():
-    """Build knowledge graph asynchronously"""
-    try:
-        print("Building Knowledge Graph...")
-
-        allowed_entities = ["ORGANIZATION", "PERSON", "FINANCIAL_METRIC", "KPI", "STRATEGY", "DATE"]
-        allowed_relations = ["REPORTED", "MANAGED_BY", "ACHIEVED", "PARTNERED_WITH", "TARGETED", "ALLOCATED_TO"]
-
-        kg_extractor = SchemaLLMPathExtractor(
-            llm=llm,
-            possible_entities=allowed_entities,
-            possible_relations=allowed_relations,
-            strict=False
-        )
-
-        index = await PropertyGraphIndex.afrom_documents(
-            documents,
-            property_graph_store=graph_store,
-            kg_extractors=[kg_extractor],
-            show_progress=True
-        )
-        print("✅ Knowledge Graph committed to Neo4j")
-        return index
-    except Exception as e:
-        logger.error(f"Failed to build knowledge graph: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
-
-# Build the index asynchronously
+# =====================================================================
+# 4. Build Knowledge Graph
+# =====================================================================
 try:
-    index = asyncio.run(build_knowledge_graph())
+    print("Building Knowledge Graph...")
+    print("   (This may take 5-15 minutes - DO NOT close this window)")
+
+    allowed_entities = ["ORGANIZATION", "PERSON", "FINANCIAL_METRIC", "KPI", "STRATEGY", "DATE"]
+    allowed_relations = ["REPORTED", "MANAGED_BY", "ACHIEVED", "PARTNERED_WITH", "TARGETED", "ALLOCATED_TO"]
+
+    kg_extractor = SchemaLLMPathExtractor(
+        llm=llm,
+        possible_entities=allowed_entities,
+        possible_relations=allowed_relations,
+        strict=False
+    )
+
+    index = PropertyGraphIndex.from_documents(
+        documents,
+        property_graph_store=graph_store,
+        kg_extractors=[kg_extractor],
+        show_progress=True
+    )
+    print("✅ Knowledge Graph committed to Neo4j")
 except Exception as e:
-    logger.error(f"Error during async knowledge graph building: {e}")
+    logger.error(f"Failed to build knowledge graph: {e}")
+    import traceback
+    traceback.print_exc()
     sys.exit(1)
 
 # =====================================================================
