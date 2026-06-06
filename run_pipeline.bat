@@ -52,7 +52,7 @@ echo   RUNNING RAG PIPELINE
 echo ================================================================
 echo.
 
-python rag_pipeline.py
+python rag_pipeline.py --rebuild
 
 if errorlevel 1 (
     echo.
