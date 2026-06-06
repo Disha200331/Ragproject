@@ -25,9 +25,9 @@ print("=" * 70)
 # Initialize Models
 try:
     print("\n[1/5] Initializing Models...")
-    requests.get("http://localhost:11434/api/tags", timeout=5)
+    requests.get("http://localhost:11434/api/tags", timeout=20)
     
-    llm = Ollama(model="gemma3:1b", request_timeout=300.0, temperature=0.1)
+    llm = Ollama(model="gemma3:1b", request_timeout=300.0, context_window=4096, temperature=0.1)
     print("   ✅ Ollama LLM initialized")
     
     embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-large-en-v1.5")
@@ -55,7 +55,7 @@ except Exception as e:
 try:
     print("\n[3/5] Connecting to Neo4j...")
     neo4j_username = os.getenv("NEO4J_USERNAME", "neo4j")
-    neo4j_password = os.getenv("NEO4J_PASSWORD")
+    neo4j_password = os.getenv("NEO4J_PASSWORD", "Disha@2003")
     neo4j_url = os.getenv("NEO4J_URL", "bolt://localhost:7687")
     
     graph_store = Neo4jPropertyGraphStore(
